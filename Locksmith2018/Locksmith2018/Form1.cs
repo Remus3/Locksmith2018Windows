@@ -16,9 +16,9 @@ namespace Locksmith2018
     {
 
         MySqlConnection connection = new MySqlConnection("datasource=sql3.freemysqlhosting.net;port=3306;Initial Catalog='sql3223004';username=sql3223004;password=LmYlAkCZMl");
-        MySqlCommand command;
-        MySqlDataAdapter adapter;
-        DataTable table;
+       // MySqlCommand command;
+        //MySqlDataAdapter adapter;
+       // DataTable table;
 
         public Form1()
         {
@@ -26,47 +26,45 @@ namespace Locksmith2018
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        {       
-            string query = "SELECT DISTINCT `Make` FROM `MasterSearch`";
-            fillCombo(cboMake, query, "Make", null);
-            cboMake_SelectedIndexChanged(null, null);
-        }
-        public void fillCombo(ComboBox combo, string query, string displayMember, string valueMember)
         {
-            command = new MySqlCommand(query, connection);
-            adapter = new MySqlDataAdapter(command);
-            table = new DataTable();
-            adapter.Fill(table);
-            combo.DataSource = table;
-            combo.DisplayMember = displayMember;
-            combo.ValueMember = valueMember;
+            //cboMake.Items.Clear();
+            cboModel.Items.Clear();
+            connection.Open();
+            string qloadstate = "SELECT DISTINCT Make FROM MasterSearch";
+            MySqlCommand cmd = new MySqlCommand(qloadstate, connection);
+            MySqlDataReader dr = cmd.ExecuteReader();
+            if (dr.HasRows)
+            {
+                while (dr.Read())
+                {
+                    cboMake.Items.Add(dr["Make"]).ToString();
+                }
+
+            }
+            
+            connection.Close();
         }
 
         private void cboMake_SelectedIndexChanged(object sender, EventArgs e)
         {
-           // int Bk = ((ItemData)cboMake.SelectedItem).ID;
-           // string query = "SELECT DISTINCT `Model` FROM `MasterSearch" + Bk + " ";
-            int val;
-            Int32.TryParse(cboMake.SelectedValue.ToString(), out val);
-            string query = "SELECT DISTINCT `Model` FROM `MasterSearch` = " + val + " ";
-            fillCombo(cboModel, query, "Model", null);
+            //on change of info for Make dropdownlist, load cities
+            //clear selection
+            cboModel.Items.Clear();
+            cboModel.Text = "Select Model";
+            connection.Open();
+            string loadmodel ="SELECT DISTINCT Model FROM MasterSearch where Make='"+cboMake.Text+"' ";
+            MySqlCommand cmds = new MySqlCommand(loadmodel, connection);
+            MySqlDataReader dr1 = cmds.ExecuteReader();
+            if (dr1.HasRows)
+            {
+                while (dr1.Read())
+                {
+                    cboModel.Items.Add(dr1["Model"]).ToString();
+                }
 
-        }
-
-    }  public struct ItemData
-        {
-            public int ID;
-            public string EmpName;
-
-
-        public ItemData(int _ID, string _EMName)
-        {
-
-            ID = _ID;
-            EmpName = _EMName;
-
-        }
-
+            }
+            connection.Close();
         }
       
+    }
 }
